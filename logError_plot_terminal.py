@@ -34,137 +34,146 @@ A warning: the terminal is cleared when plotting.
 
 '''
 
-def normalize(var,height):
-    return ((var-min(var))/max((var-min(var)))*(height)).astype("int")
+def main():
 
-def build_plot(var,width,height):
-    plot = []
-    list_idx = 0
-    for i in range(height,-1,-1):
-        plot.append(" "*width)
-        idx = np.where(var == i)[0]
-
-        for j in range(len(idx)):
-            plot[list_idx] = plot[list_idx][0:idx[j]] + "*" + \
-                             plot[list_idx][idx[j]+1:]
-
-        list_idx += 1
-
-    return plot
-
-def print_plot(plot,t_width):
-    os.system("clear")
-    for i in range(len(plot)):
-        print(plot[i])
-
-    print("-"*t_width)
-
-def plot_legend(var,var_num,log_data,indexes):
-    s_num_0 = log_data[indexes[0],0]
-    s_num_f = log_data[indexes[-1],0]
-    var_change_0 = min(log_data[indexes,var_num])
-    var_change_f = max(log_data[indexes,var_num])
-    print(" Variable: %c | Save number [%d, %d] | %c change [%E, %E] | "\
-          %(var,s_num_0,s_num_f,var,var_change_0,var_change_f),end='')
-    print(">> Next: ",end='')
-
-# Parameters
-if len(sys.argv) == 1:
+  # Parameters
+  if len(sys.argv) == 1:
     log_input_N = 500 # number of log entries to be loaded
                       # (middle of file to end)
-else:
+  else:
     log_input_N = int(sys.argv[1])
 
-# Terminal dimensions (this defines how the plot will be formatted)
-t_height = int(check_output(["tput","lines"]).decode("utf-8"))
-t_width = int(check_output(["tput","cols"]).decode("utf-8"))
-v_margin = 3 # margin added to not crop the upper part of the plot and to fit
-             # the legend
+  # Terminal dimensions (this defines how the plot will be formatted)
+  t_height = int(check_output(["tput","lines"]).decode("utf-8"))
+  t_width = int(check_output(["tput","cols"]).decode("utf-8"))
+  v_margin = 3 # margin added to not crop the upper part of the plot and to fit
+              # the legend
 
-# Get data from file
-address = check_output(["pwd"]).decode("utf-8")
-log_data = np.genfromtxt(address[:-1] + "/log.txt",skip_header=1)
-log_lines = log_data.shape[0]
+  # Get data from file
+  address = check_output(["pwd"]).decode("utf-8")
+  log_data = np.genfromtxt(address[:-1] + "/log.txt",skip_header=1)
+  log_lines = log_data.shape[0]
 
-if log_input_N > log_lines:
+  if log_input_N > log_lines:
     print("Warning: Too few lines in log file. ",end='')
     print("Setting log_input_N = log_lines = {}".format(log_lines))
     log_input_N = log_lines
     sleep(2)
 
-indexes = np.linspace(log_lines-log_input_N,log_lines-1,t_width).astype("int")
-U = log_data[indexes,5]
-V = log_data[indexes,6]
-W = log_data[indexes,7]
-R = log_data[indexes,8]
-E = log_data[indexes,9]
-if sum(W) == 0: two_d = True
-else: two_d = False
+  indexes = np.linspace(log_lines-log_input_N,log_lines-1,t_width).astype("int")
+  U = log_data[indexes,5]
+  V = log_data[indexes,6]
+  W = log_data[indexes,7]
+  R = log_data[indexes,8]
+  E = log_data[indexes,9]
+  if sum(W) == 0: two_d = True
+  else: two_d = False
 
-# Normalize in terms of the terminal's dimensions
-U = normalize(U,t_height - v_margin)
-V = normalize(V,t_height - v_margin)
-if not two_d: W = normalize(W,t_height - v_margin)
-R = normalize(R,t_height - v_margin)
-E = normalize(E,t_height - v_margin)
+  # Normalize in terms of the terminal's dimensions
+  U = normalize(U,t_height - v_margin)
+  V = normalize(V,t_height - v_margin)
+  if not two_d: W = normalize(W,t_height - v_margin)
+  R = normalize(R,t_height - v_margin)
+  E = normalize(E,t_height - v_margin)
 
-# Build the plots
-txt_plot_U = build_plot(U,t_width,t_height - v_margin)
-txt_plot_V = build_plot(V,t_width,t_height - v_margin)
-txt_plot_W = build_plot(W,t_width,t_height - v_margin)
-txt_plot_R = build_plot(R,t_width,t_height - v_margin)
-txt_plot_E = build_plot(E,t_width,t_height - v_margin)
+  # Build the plots
+  txt_plot_U = build_plot(U,t_width,t_height - v_margin)
+  txt_plot_V = build_plot(V,t_width,t_height - v_margin)
+  txt_plot_W = build_plot(W,t_width,t_height - v_margin)
+  txt_plot_R = build_plot(R,t_width,t_height - v_margin)
+  txt_plot_E = build_plot(E,t_width,t_height - v_margin)
 
-op = 'U'
-while op != 'q' and  op != 'Q':
+  op = 'U'
+  while op != 'q' and  op != 'Q':
     if op == 'u' or op == 'U':
-        print_plot(txt_plot_U,t_width)
-        plot_legend("U",5,log_data,indexes)
-        op = input()
+      print_plot(txt_plot_U,t_width)
+      plot_legend("U",5,log_data,indexes)
+      op = input()
 
-        if len(op) == 0: op = 'V'
+      if len(op) == 0: op = 'V'
 
-        continue
+      continue
 
     if op == 'v' or op == 'V':
-        print_plot(txt_plot_V,t_width)
-        plot_legend("V",6,log_data,indexes)
-        op = input()
+      print_plot(txt_plot_V,t_width)
+      plot_legend("V",6,log_data,indexes)
+      op = input()
 
-        if len(op) == 0 and two_d: op = 'R'
-        elif len(op) == 0: op = 'W'
+      if len(op) == 0 and two_d: op = 'R'
+      elif len(op) == 0: op = 'W'
 
-        continue
+      continue
 
     if op == 'w' or op == 'W':
-        print_plot(txt_plot_W,t_width)
-        plot_legend("W",7,log_data,indexes)
-        op = input()
+      print_plot(txt_plot_W,t_width)
+      plot_legend("W",7,log_data,indexes)
+      op = input()
 
-        if len(op) == 0: op = 'R'
+      if len(op) == 0: op = 'R'
 
-        continue
+      continue
 
     if op == 'r' or op == 'R':
-        print_plot(txt_plot_R,t_width)
-        plot_legend("R",8,log_data,indexes)
-        op = input()
+      print_plot(txt_plot_R,t_width)
+      plot_legend("R",8,log_data,indexes)
+      op = input()
 
-        if len(op) == 0: op = 'E'
+      if len(op) == 0: op = 'E'
 
-        continue
+      continue
 
     if op == 'e' or op == 'E':
-        print_plot(txt_plot_E,t_width)
-        plot_legend("E",9,log_data,indexes)
-        op = input()
+      print_plot(txt_plot_E,t_width)
+      plot_legend("E",9,log_data,indexes)
+      op = input()
 
-        if len(op) == 0: op = 'Q'
+      if len(op) == 0: op = 'Q'
 
-        continue
+      continue
 
     else:
-        os.system("clear")
-        print("Incorrect option | >> Next (U, V, W, R, E, or Q to quit): ",\
-              end='')
-        op = input()
+      os.system("clear")
+      print("Incorrect option | >> Next (U, V, W, R, E, or Q to quit): ",\
+          end='')
+      op = input()
+
+def normalize(var,height):
+  
+  return ((var - min(var))/max((var - min(var)))*(height)).astype("int")
+
+def build_plot(var,width,height):
+  
+  plot = []
+  list_idx = 0
+  for i in range(height,-1,-1):
+    plot.append(" "*width)
+    idx = np.where(var == i)[0]
+
+    for j in range(len(idx)):
+      plot[list_idx] = plot[list_idx][0:idx[j]] + "*" + \
+                        plot[list_idx][idx[j]+1:]
+
+    list_idx += 1
+
+  return plot
+
+def print_plot(plot,t_width):
+  
+  os.system("clear")
+  for i in range(len(plot)):
+      print(plot[i])
+
+  print("-"*t_width)
+
+def plot_legend(var,var_num,log_data,indexes):
+  
+  s_num_0 = log_data[indexes[0],0]
+  s_num_f = log_data[indexes[-1],0]
+  var_change_0 = min(log_data[indexes,var_num])
+  var_change_f = max(log_data[indexes,var_num])
+  print(" Variable: %c | Save number [%d, %d] | %c change [%E, %E] | "\
+          %(var,s_num_0,s_num_f,var,var_change_0,var_change_f),end='')
+  print(">> Next: ",end='')
+
+if __name__ == '__main__':
+  main()
