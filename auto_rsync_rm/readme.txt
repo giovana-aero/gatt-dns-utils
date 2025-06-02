@@ -47,7 +47,7 @@ lines beginning with "$" represent terminal commands.
                simulation files)
   > case_list -> a list containing the names of all case folders which you want
                  to transfer
-  > executable -> path to the C programs' executable compiled in step 5
+  > executable -> path to the C program's executable compiled in step 5
   > log_address -> directory where the logs of the transfers will be saved
   note that, even if you set only one daily time to transfer, the transfer_time
   variables still should be written as lists (that is, for instance, 
