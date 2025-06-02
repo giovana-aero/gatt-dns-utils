@@ -75,7 +75,7 @@ lines beginning with "$" represent terminal commands.
   $ exit                     # in a screen to terminate it
   and ctrl + a + d exits a screen without terminating it.
 
-10.run the exec_auto_rsync.py script.
+10.open exec_auto_rsync.py script, set "mode = 1", and run.
   example:
   $ clear; python2.7 exec_auto_rsync.py   # where "clear" clears the terminal
   to stop, ctrl + c on the terminal.
